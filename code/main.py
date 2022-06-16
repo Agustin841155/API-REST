@@ -27,7 +27,7 @@ async def clientes():
         return response 
 
 @app.get("/clientes/{id}")
-async def clientes(id):
+async def clientess(id):
     with sqlite3.connect("sql/clientes.sqlite") as connection:
         connection.row_factory = sqlite3.Row
         cursor = connection.cursor()
