@@ -30,8 +30,8 @@ def test_post_cliente():
     assert response.json() == Response
 
 def test_put_cliente():
-    payload = {"id_cliente":4,"nombre" : "Agustin", "email" : "agustin@gmail.com"}
-    response = clientes.put("/clientes/",json=payload)
+    payload = {"nombre" : "Agustin", "email" : "agustin@gmail.com"}
+    response = clientes.put("/clientes/4",json=payload)
     Response = {"message" : "Cliente actualizado"}
     assert response.status_code == 200
     assert response.json() == Response
