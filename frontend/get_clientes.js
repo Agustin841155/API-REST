@@ -1,5 +1,4 @@
 function get_clientes(){
-    
     var query = window.location.search.substring(1);
     console.log("Query" + query);
     var request = new XMLHttpRequest();
