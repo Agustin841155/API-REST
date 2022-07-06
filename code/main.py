@@ -5,8 +5,10 @@ from pydantic import BaseModel
 import hashlib 
 import os
 
+
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.middleware.cors import CORSMiddleware
 
 class Respuesta(BaseModel):
     message: str
@@ -28,6 +30,20 @@ DATABASE_URL = os.path.join("sql/usuarios.sqlite")
 
 app=FastAPI()
 security = HTTPBasic()
+
+origins = {
+    "https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us51.gitpod.io/",
+    "https://8080-agustin841155-apirest-kf9c01zz3oe.ws-us51.gitpod.io/"
+}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_current_level(credentials: HTTPBasicCredentials = Depends(security)):
     password_b = hashlib.md5(credentials.password.encode())
