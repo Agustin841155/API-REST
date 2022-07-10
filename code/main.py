@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel
 import hashlib 
 import os
-
+import requests
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -26,14 +26,15 @@ class Usuarios(BaseModel):
     username: str
     level: int
 
+
 DATABASE_URL = os.path.join("sql/usuarios.sqlite")
 
 app=FastAPI()
 security = HTTPBasic()
 
 origins = {
-    "https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us51.gitpod.io/",
-    "https://8080-agustin841155-apirest-kf9c01zz3oe.ws-us51.gitpod.io/"
+    "https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/",
+    "https://8080-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/"
 }
 
 app.add_middleware(
@@ -88,7 +89,7 @@ async def clientes(offset:int=0, limit:int=10, level: int = Depends(get_current_
             headers={"WWW-Authenticate": "Basic"},
         )
 
-@app.get("/clientes/{id}", response_model=List[Cliente], status_code=status.HTTP_202_ACCEPTED,
+@app.get("/clientes/{id}", response_model=Cliente, status_code=status.HTTP_202_ACCEPTED,
     summary="Regresa a un cliente especifico determinado por el ID",
     description="Regresa un cliente con el ID indicado", 
 )
@@ -98,7 +99,7 @@ async def clientes_id(id: int, level: int = Depends(get_current_level)):
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
             cursor.execute("SELECT * FROM clientes WHERE id_cliente={}".format(int(id))) 
-            response = cursor.fetchall()
+            response = cursor.fetchone()
             return response
     else:
          raise HTTPException(
@@ -107,18 +108,19 @@ async def clientes_id(id: int, level: int = Depends(get_current_level)):
             headers={"WWW-Authenticate": "Basic"},
         )
 
+
 #Parte 2
 
 @app.post("/clientes/",response_model=Respuesta, status_code=status.HTTP_202_ACCEPTED,
     summary="A traves del metodo POST se insertan nuevos registos en la base de datos",
     description="Permite añadir un nuevo registro",
 ) 
-async def post_cliente(nombre:str,email:str, level: int = Depends(get_current_level)):
+async def post_cliente(cliente:ClienteIN, level: int = Depends(get_current_level)):
     if level==0: 
-        with sqlite3.connect("code/sql/clientes.sqlite") as connection:
+        with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO clientes(nombre,email) VALUES ('{}','{}')".format(nombre,email))
+            cursor.execute("INSERT INTO clientes(nombre,email) VALUES ('{}','{}')".format(cliente.nombre,cliente.email))
             response = cursor.fetchone()
             mensaje = {"message" : "Cliente agregado"}
             return mensaje
@@ -133,12 +135,12 @@ async def post_cliente(nombre:str,email:str, level: int = Depends(get_current_le
     summary="Permite actualizar un registro a traves del ID indicado en la base de datos",
     description="Permite actualizar un registro a traves del ID ",
 )
-async def put_cliente(id_cliente:int,nombre:str,email:str, level: int = Depends(get_current_level)):
+async def put_cliente(cliente : Cliente, level: int = Depends(get_current_level)):
     if level==0:
-        with sqlite3.connect("code/sql/clientes.sqlite") as connection:
+        with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
-            cursor.execute("UPDATE clientes SET nombre = '{}', email = '{}' WHERE id_cliente={}".format(nombre,email,id_cliente))
+            cursor.execute("UPDATE clientes SET nombre = '{}', email = '{}' WHERE id_cliente={}".format(cliente.nombre,cliente.email,cliente.id_cliente))
             response = cursor.fetchone()
             mensaje = {"message" : "Cliente actualizado"}
             return mensaje
@@ -155,7 +157,7 @@ async def put_cliente(id_cliente:int,nombre:str,email:str, level: int = Depends(
 )
 async def delete_cliente(id_cliente:int, level: int = Depends(get_current_level)):
     if level==0:
-        with sqlite3.connect("code/sql/clientes.sqlite") as connection:
+        with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
             cursor.execute("DELETE FROM clientes WHERE id_cliente={}".format(id_cliente))

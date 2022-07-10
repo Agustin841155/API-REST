@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+    <header>
+        <title>POST para insertar un cliente</title>
+    </header>
+    <body>
+        <h1>Agregar cliente </h1>
+        <form id="form_cliente" method="POST">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre"/>
+            <br>
+            <br>
+            <label for="email">Email</label>
+            <input type="email" id="email"/>
+            <br>
+            <br>
+            <input type="button" value="Guardar" onclick="post_cliente()">
+            <br>
+            <br>
+            <a href="get_clientes.html">Regresar a la lista de clientes</a>
+        </form>
+        <script type="text/javascript" src="post_cliente.js"></script>
+</html>
