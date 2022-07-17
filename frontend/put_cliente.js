@@ -34,7 +34,7 @@ function put_cliente(){
 
         if (status == 202){
             alert(json.message);
-            window.location.replace('/get_clientes.html');
+            window.location.replace('get_clientes.html');
         }
 
 
