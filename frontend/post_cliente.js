@@ -13,12 +13,11 @@ function post_cliente(){
 
     var request = new XMLHttpRequest();
 
-    var username = "admin";
-    var password = "admin";
+    token = sessionStorage.getItem("token");
 
-    request.open('POST',"https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/clientes/",true)
+    request.open('POST',"https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us59.gitpod.io/clientes/",true)
     request.setRequestHeader("Accept", "application/json");
-    request.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password))
+    request.setRequestHeader("Authorization", "Bearer " + token);
     request.setRequestHeader("content-type", "application/json");
 
     request.onload = () =>{

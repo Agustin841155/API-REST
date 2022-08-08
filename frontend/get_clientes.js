@@ -2,12 +2,12 @@ function get_clientes(){
     var query = window.location.search.substring(1);
     console.log("Query" + query);
     var request = new XMLHttpRequest();
-    var username = "admin";
-    var password = "admin";
+    token = sessionStorage.getItem("token");
+    
 
-    request.open('GET', 'https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/clientes/');
+    request.open('GET', 'https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us59.gitpod.io/clientes/');
     request.setRequestHeader("Accept", "application/json");
-    request.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password))
+    request.setRequestHeader("Authorization", "Bearer " + token);
     request.setRequestHeader("content-type", "application/json");
 
     const tabla = document.getElementById("tabla_clientes");
@@ -71,12 +71,11 @@ function delete_cliente(id_cliente){
 
     console.log('Id: ' + id_cliente);
 
-    var username = "admin";
-    var password = "admin";
+    token = sessionStorage.getItem("token");
 
-    request.open('DELETE','https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/clientes/' + id_cliente, true);
+    request.open('DELETE','https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us59.gitpod.io/clientes/' + id_cliente, true);
     request.setRequestHeader("Accept", "application/json");
-    request.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password))
+    request.setRequestHeader("Authorization", "Bearer " + token);
     request.setRequestHeader("content-type", "application/json");
     request.onload = () =>{
         const response = request.responseText;
@@ -87,7 +86,7 @@ function delete_cliente(id_cliente){
         console.log("JSON     : " + json);
         console.log("Status   : " + status);
 
-        if (status == 202){
+        if (status == 200){
             alert(json.message);
             window.location.replace('get_clientes.html');
         }

@@ -6,16 +6,15 @@ function deleteCliente(){
     let id_cliente = window.location.search.substring(1);
     console.log('Id : ' + id_cliente);
 
-    var username = "admin";
-    var password = "admin";
+    token = sessionStorage.getItem("token");
 
     let payload = {
         "id_cliente" : id_cliente.value
     }
 
-    request.open('DELETE','https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us53.gitpod.io/clientes/' + id_cliente, true);
+    request.open('DELETE','https://8000-agustin841155-apirest-kf9c01zz3oe.ws-us59.gitpod.io/clientes/' + id_cliente, true);
     request.setRequestHeader("Accept", "application/json");
-    request.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password))
+    request.setRequestHeader("Authorization", "Bearer " + token);
     request.setRequestHeader("content-type", "application/json");
     request.onload = () =>{
         const response = request.responseText;

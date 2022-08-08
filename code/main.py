@@ -28,6 +28,11 @@ class Usuarios(BaseModel):
     username: str
     level: int
 
+class User(BaseModel):
+    username: str
+    password: str
+
+
 
 DATABASE_URL = os.path.join("sql/usuarios.sqlite")
 
@@ -42,7 +47,7 @@ origins = {
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,6 +64,7 @@ firebaseConfig = {
 }
 
 firebase = pyrebase.initialize_app(firebaseConfig)
+
 
 def get_current_level(credentials: HTTPBasicCredentials = Depends(security)):
     password_b = hashlib.md5(credentials.password.encode())
@@ -88,8 +94,13 @@ async def index():
     summary="Regresa una lista de todos los clientes en la base de datos",
     description="Regresa una lista de todos los clientes clientes",
 )
-async def clientes(offset:int=0, limit:int=10, level: int = Depends(get_current_level)):
-    if level==0:
+async def clientes(offset:int=0, limit:int=10, credentials:HTTPAuthorizationCredentials = Depends(securityBearer)):
+    auth = firebase.auth()
+    db = firebase.database()
+    user = auth.get_account_info(credentials.credentials)
+    uid = user['users'][0]['localId']
+    user_data = int(db.child("users").child(uid).child("Nivel").get().val())
+    if user_data==1:
         with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
@@ -100,15 +111,20 @@ async def clientes(offset:int=0, limit:int=10, level: int = Depends(get_current_
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission to access this resource",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 @app.get("/clientes/{id}", response_model=Cliente, status_code=status.HTTP_202_ACCEPTED,
     summary="Regresa a un cliente especifico determinado por el ID",
     description="Regresa un cliente con el ID indicado", 
 )
-async def clientes_id(id: int, level: int = Depends(get_current_level)):
-    if level==0:
+async def clientes_id(id: int, credentials:HTTPAuthorizationCredentials = Depends(securityBearer)):
+    auth = firebase.auth()
+    db = firebase.database()
+    user = auth.get_account_info(credentials.credentials)
+    uid = user['users'][0]['localId']
+    user_data = int(db.child("users").child(uid).child("Nivel").get().val())
+    if user_data==1:
         with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
@@ -119,7 +135,7 @@ async def clientes_id(id: int, level: int = Depends(get_current_level)):
          raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission to access this resource",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 
@@ -129,8 +145,13 @@ async def clientes_id(id: int, level: int = Depends(get_current_level)):
     summary="A traves del metodo POST se insertan nuevos registos en la base de datos",
     description="Permite añadir un nuevo registro",
 ) 
-async def post_cliente(cliente:ClienteIN, level: int = Depends(get_current_level)):
-    if level==0: 
+async def post_cliente(cliente:ClienteIN, credentials:HTTPAuthorizationCredentials = Depends(securityBearer)):
+    auth = firebase.auth()
+    db = firebase.database()
+    user = auth.get_account_info(credentials.credentials)
+    uid = user['users'][0]['localId']
+    user_data = int(db.child("users").child(uid).child("Nivel").get().val())
+    if user_data==1: 
         with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
@@ -142,15 +163,20 @@ async def post_cliente(cliente:ClienteIN, level: int = Depends(get_current_level
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission to access this resource",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 @app.put("/clientes/{id_cliente}",response_model=Respuesta, 
     summary="Permite actualizar un registro a traves del ID indicado en la base de datos",
     description="Permite actualizar un registro a traves del ID ",
 )
-async def put_cliente(cliente : Cliente, level: int = Depends(get_current_level)):
-    if level==0:
+async def put_cliente(cliente : Cliente, credentials:HTTPAuthorizationCredentials = Depends(securityBearer)):
+    auth = firebase.auth()
+    db = firebase.database()
+    user = auth.get_account_info(credentials.credentials)
+    uid = user['users'][0]['localId']
+    user_data = int(db.child("users").child(uid).child("Nivel").get().val())
+    if user_data==1:
         with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
@@ -162,15 +188,20 @@ async def put_cliente(cliente : Cliente, level: int = Depends(get_current_level)
           raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission to access this resource",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 @app.delete("/clientes/{id_cliente}",response_model=Respuesta, 
     summary="Permite eliminar un registro indicando el ID en la base de datos",
     description="Elimina un registro indicando el ID",
 )
-async def delete_cliente(id_cliente:int, level: int = Depends(get_current_level)):
-    if level==0:
+async def delete_cliente(id_cliente:int, credentials:HTTPAuthorizationCredentials = Depends(securityBearer)):
+    auth = firebase.auth()
+    db = firebase.database()
+    user = auth.get_account_info(credentials.credentials)
+    uid = user['users'][0]['localId']
+    user_data = int(db.child("users").child(uid).child("Nivel").get().val())
+    if user_data==1:
         with sqlite3.connect("sql/clientes.sqlite") as connection:
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
@@ -182,7 +213,7 @@ async def delete_cliente(id_cliente:int, level: int = Depends(get_current_level)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission to access this resource",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 
@@ -236,4 +267,59 @@ async def get_user(credentials:HTTPAuthorizationCredentials = Depends(securityBe
     
     except Exception as error:
         print(f"ERROR: {error}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+"""agregar usuarios"""
+
+@app.post(
+    "/user/insert/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Insertar un nuevo usuario a firebase",
+    description="Insertar un nuevo usuario a firebase",
+    tags=["Insert"]
+)
+def insert_user(usuario:User):
+    auth = firebase.auth()
+    correo = usuario.username
+    contrasena = usuario.password
+
+    try:
+        user = auth.create_user_with_email_and_password(correo, contrasena)
+        Token = user["idToken"]
+        userInfo = auth.get_account_info(Token)
+        uid = userInfo["users"][0]["localId"]
+        email = userInfo["users"][0]["email"]
+        data = {"email" : email, "Nivel" : 1}
+        db = firebase.database()
+        user_data = db.child("users").child(uid).set(data)
+        response = {"user": user}
+        return response
+
+    except Exception as error:
+        print(f"Error : {error}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+@app.post(
+    "/user/login/",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Inicio de sesion usando firebase",
+    description="Inicio de sesion usando firebase",
+    tags=["logIn"],
+)
+async def login(usuario:User):
+    auth = firebase.auth()
+    correo = usuario.username
+    contrasena = usuario.password
+    
+    try:
+        userData = auth.sign_in_with_email_and_password(correo, contrasena)
+        Token = userData["idToken"]
+        response = {f"userData": Token}
+        return response
+
+    except Exception as error:
+        print(f"Error : {error}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
